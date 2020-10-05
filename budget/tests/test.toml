@@ -1,0 +1,53 @@
+start_date = 2020-10-01
+end_date = 2020-10-31
+budget = 420.0
+essential_categories = [
+  "products",
+  "transport",
+  "utilities",
+]
+
+[[days]]
+date = 2020-10-01
+
+  [[days.expenses]]
+  name = "Potato masher"
+  price = 3.81
+  category = "supplies"
+
+  [[days.expenses]]
+  name = "Bacon"
+  price = 3.33
+  category = "products"
+  shared = 2
+
+  [[days.expenses]]
+  name = "Yoghurt"
+  price = 1.24
+  category = "products"
+  qty = 2
+
+  [[days.expenses]]
+  name = "Onion"
+  price = 0.15
+  category = "products"
+
+  [[days.expenses]]
+  name = "Chicken"
+  price = 2.28
+  category = "products"
+  shared = 2
+
+[[days]]
+date = 2020-10-02
+
+  [[days.expenses]]
+  name = "VPS"
+  price = 5.0
+  category = "utilities"
+  recurring = true
+
+  [[days.expenses]]
+  name = "Transport card"
+  price = 6.9
+  category = "transport"
