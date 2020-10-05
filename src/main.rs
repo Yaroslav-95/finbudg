@@ -212,11 +212,11 @@ fn output(account: Account, calculated: Calculated) {
         };
 
     println!(
-        "..taking into account all expenses: {}",
+        "...taking into account all expenses: {}",
         days_left_output,
     );
     println!(
-        "..taking into account only essential expenses: {}",
+        "...taking into account only essential expenses: {}",
         days_left_essential_output,
     );
     println!();

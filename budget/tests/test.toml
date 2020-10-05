@@ -51,3 +51,7 @@ date = 2020-10-02
   name = "Transport card"
   price = 6.9
   category = "transport"
+
+[[days]]
+date = 2020-10-03
+

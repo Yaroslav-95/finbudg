@@ -22,6 +22,7 @@ pub struct Account {
 pub struct Day {
     #[serde(deserialize_with = "deserialize_date")]
     pub date: NaiveDate,
+    #[serde(default)]
     pub expenses: Vec<Expense>,
 }
 

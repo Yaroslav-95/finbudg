@@ -111,8 +111,8 @@ Total: 22.71
 Left on balance: 397.29
 
 Days until balance runs out:
-..taking into account all expenses: 34.99
-..taking into account only essential expenses: 42.04
+...taking into account all expenses: 34.99
+...taking into account only essential expenses: 42.04
 
 Your expenses are healthy, they should last you from your last day on entry
 through your last day of the period.

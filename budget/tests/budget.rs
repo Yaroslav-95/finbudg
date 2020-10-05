@@ -82,6 +82,10 @@ fn can_parse_account() -> Result<(), ParseError>{
                     },
                 ],
             },
+            Day {
+                date: NaiveDate::from_ymd(2020, 10, 3),
+                expenses: Vec::<Expense>::new(),
+            },
         ],
     };
 
@@ -95,32 +99,32 @@ fn can_parse_account() -> Result<(), ParseError>{
 #[test]
 fn can_calculate() -> Result<(), ParseError> {
     let mut should_be = Calculated {
-        all_day_average: 11.355,
-        essential_day_average: 9.45,
+        all_day_average: 7.57,
+        essential_day_average: 6.3,
         categories_day_average: HashMap::<String, f64>::new(),
         essential_subtotal: 18.9,
         categories_subtotal: HashMap::<String, f64>::new(),
         total: 22.71,
         balance: 397.29,
-        days_left: 34.9881109643329,
-        days_left_essential: 42.041269841269845,
+        days_left: 52.48216644649934,
+        days_left_essential: 63.06190476190476,
     };
 
     should_be.categories_day_average.insert(
         "supplies".to_string(),
-        1.905,
+        1.27,
     );
     should_be.categories_day_average.insert(
         "products".to_string(),
-        3.5,
+        2.3333333333333335,
     );
     should_be.categories_day_average.insert(
         "transport".to_string(),
-        3.45,
+        2.3000000000000003,
     );
     should_be.categories_day_average.insert(
         "utilities".to_string(),
-        2.5,
+        1.6666666666666667,
     );
 
     should_be.categories_subtotal.insert(
