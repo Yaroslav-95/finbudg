@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use chrono::prelude::*;
+use chrono::NaiveDate;
 
 use budget::*;
 
@@ -62,6 +62,10 @@ fn can_parse_account() -> Result<(), ParseError>{
                 ],
             },
             Day {
+                date: NaiveDate::from_ymd(2020, 10, 4),
+                expenses: Vec::<Expense>::new(),
+            },
+            Day {
                 date: NaiveDate::from_ymd(2020, 10, 2),
                 expenses: vec![
                     Expense {
@@ -82,10 +86,6 @@ fn can_parse_account() -> Result<(), ParseError>{
                     },
                 ],
             },
-            Day {
-                date: NaiveDate::from_ymd(2020, 10, 3),
-                expenses: Vec::<Expense>::new(),
-            },
         ],
     };
 
@@ -99,32 +99,33 @@ fn can_parse_account() -> Result<(), ParseError>{
 #[test]
 fn can_calculate() -> Result<(), ParseError> {
     let mut should_be = Calculated {
-        all_day_average: 7.57,
-        essential_day_average: 6.3,
+        all_day_average: 5.6775,
+        essential_day_average: 4.725,
         categories_day_average: HashMap::<String, f64>::new(),
         essential_subtotal: 18.9,
         categories_subtotal: HashMap::<String, f64>::new(),
         total: 22.71,
         balance: 397.29,
-        days_left: 52.48216644649934,
-        days_left_essential: 63.06190476190476,
+        days_left: 69.9762219286658,
+        days_left_essential: 84.08253968253969,
+        last_day: NaiveDate::from_ymd(2020, 10, 04),
     };
 
     should_be.categories_day_average.insert(
         "supplies".to_string(),
-        1.27,
+        0.9525,
     );
     should_be.categories_day_average.insert(
         "products".to_string(),
-        2.3333333333333335,
+        1.75,
     );
     should_be.categories_day_average.insert(
         "transport".to_string(),
-        2.3000000000000003,
+        1.725,
     );
     should_be.categories_day_average.insert(
         "utilities".to_string(),
-        1.6666666666666667,
+        1.25,
     );
 
     should_be.categories_subtotal.insert(
@@ -145,7 +146,7 @@ fn can_calculate() -> Result<(), ParseError> {
     );
 
     let account = budget::parse_account("tests/test.toml")?;
-    let actually_is = budget::calculate(&account);
+    let actually_is = budget::calculate(&account).unwrap();
 
     assert_eq!(actually_is, should_be);
 

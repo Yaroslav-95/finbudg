@@ -51,6 +51,7 @@ pub struct Calculated {
     pub balance: f64,
     pub days_left: f64,
     pub days_left_essential: f64,
+    pub last_day: NaiveDate,
 }
 
 #[derive(PartialEq, Eq, Debug)]
@@ -96,7 +97,11 @@ pub fn parse_account(path: &str) -> Result<Account, ParseError> {
     }
 }
 
-pub fn calculate(account: &Account) -> Calculated {
+pub fn calculate(account: &Account) -> Option<Calculated> {
+    if account.days.len() < 1 {
+        return None;
+    }
+
     let mut calculated = Calculated {
         all_day_average: 0.0,
         essential_day_average: 0.0,
@@ -107,12 +112,13 @@ pub fn calculate(account: &Account) -> Calculated {
         balance: 0.0,
         days_left: 0.0,
         days_left_essential: 0.0,
+        last_day: account.days.last().unwrap().date,
     };
 
-    let mut days_calculated = 0;
-
     for day in account.days.iter() {
-        days_calculated += 1;
+        if day.date > calculated.last_day {
+            calculated.last_day = day.date;
+        }
 
         for expense in day.expenses.iter() {
             calculated.total += expense.price;
@@ -135,15 +141,18 @@ pub fn calculate(account: &Account) -> Calculated {
         }
     }
 
-    calculated.all_day_average = calculated.total / days_calculated as f64;
+    let days_elapsed = 
+        (calculated.last_day - account.start_date).num_days() + 1;
+
+    calculated.all_day_average = calculated.total / days_elapsed as f64;
     calculated.essential_day_average = 
-        calculated.essential_subtotal / days_calculated as f64;
+        calculated.essential_subtotal / days_elapsed as f64;
 
     for (category, subtotal) in calculated.categories_subtotal.iter() {
         calculated.categories_day_average
             .insert(
                 category.clone(),
-                subtotal / days_calculated as f64,
+                subtotal / days_elapsed as f64,
             );
     }
 
@@ -153,11 +162,5 @@ pub fn calculate(account: &Account) -> Calculated {
     calculated.days_left_essential = 
         calculated.balance / calculated.essential_day_average;
 
-    calculated
-}
-
-pub fn get_calculated(path: &str) -> Result<Calculated, ParseError> {
-    let account = parse_account(path)?;
-
-    Ok(calculate(&account))
+    Some(calculated)
 }

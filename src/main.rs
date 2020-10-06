@@ -33,7 +33,7 @@ fn main() {
             ::std::process::exit(1);
         }
     };
-    let calculated = budget::calculate(&account);
+    let maybe_calculated = budget::calculate(&account);
 
     if no_color && !force_color {
         colored::control::set_override(false);
@@ -41,7 +41,7 @@ fn main() {
         colored::control::set_override(true);
     }
 
-    output(account, calculated);
+    output(account, maybe_calculated);
 }
 
 fn get_cli_matches() -> ArgMatches<'static> {
@@ -68,7 +68,7 @@ fn get_cli_matches() -> ArgMatches<'static> {
         .get_matches()
 }
 
-fn output(account: Account, calculated: Calculated) {
+fn output(account: Account, maybe_calculated: Option<Calculated>) {
     println!(
         "{}",
         format!(
@@ -78,22 +78,23 @@ fn output(account: Account, calculated: Calculated) {
         ).cyan(),
     );
 
-    let last_day = match account.days.last() {
-        Some(day) => day,
+    let calculated = match maybe_calculated {
+        Some(data) => data,
         None => {
-            println!("{}", "Your expenses are empty...".italic());
+            println!();
+            println!("{}", "You have no expenses...".italic());
 
             ::std::process::exit(0);
         }
     };
 
-    let days_until_end = account.end_date - last_day.date;
+    let days_until_end = account.end_date - calculated.last_day;
 
     println!(
         "{}", 
         format!(
             "Last day on entry: {}",
-            last_day.date.format("%Y-%m-%d"),
+            calculated.last_day.format("%Y-%m-%d"),
         ).cyan(),
     );
 

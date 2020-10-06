@@ -39,6 +39,9 @@ date = 2020-10-01
   shared = 2
 
 [[days]]
+date = 2020-10-04
+
+[[days]]
 date = 2020-10-02
 
   [[days.expenses]]
@@ -51,7 +54,4 @@ date = 2020-10-02
   name = "Transport card"
   price = 6.9
   category = "transport"
-
-[[days]]
-date = 2020-10-03
 
