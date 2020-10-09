@@ -19,13 +19,14 @@ date = 2020-10-01
   name = "Bacon"
   price = 3.33
   category = "products"
-  shared = 2
+  shared = 3
 
   [[days.expenses]]
   name = "Yoghurt"
   price = 1.24
   category = "products"
   qty = 2
+  shared = 2
 
   [[days.expenses]]
   name = "Onion"

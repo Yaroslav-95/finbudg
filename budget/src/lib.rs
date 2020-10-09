@@ -49,6 +49,7 @@ pub struct Calculated {
     pub categories_subtotal: HashMap<String, f64>,
     pub total: f64,
     pub balance: f64,
+    pub total_owed: HashMap<u32, f64>,
     pub days_left: f64,
     pub days_left_essential: f64,
     pub last_day: NaiveDate,
@@ -69,9 +70,6 @@ fn recurring_default() -> bool {
 }
 
 // Parse the dates from toml's Datetime to Chrono's NaiveDate
-// Probably unnecessary for now, but since I am planning on using the dates in
-// the future to more easily count the days, it would be better to have them in
-// a proper format
 fn deserialize_date<'de, D>(deserializer: D) -> Result<NaiveDate, D::Error>
 where D: Deserializer<'de> {
     toml::value::Datetime::deserialize(deserializer)
@@ -98,7 +96,7 @@ pub fn parse_account(path: &str) -> Result<Account, ParseError> {
 }
 
 pub fn calculate(account: &Account) -> Option<Calculated> {
-    if account.days.len() < 1 {
+    if account.days.is_empty() {
         return None;
     }
 
@@ -110,6 +108,7 @@ pub fn calculate(account: &Account) -> Option<Calculated> {
         categories_subtotal: HashMap::<String, f64>::new(),
         total: 0.0,
         balance: 0.0,
+        total_owed: HashMap::<u32, f64>::new(),
         days_left: 0.0,
         days_left_essential: 0.0,
         last_day: account.days.last().unwrap().date,
@@ -136,6 +135,23 @@ pub fn calculate(account: &Account) -> Option<Calculated> {
 
                 if account.essential_categories.contains(category) {
                     calculated.essential_subtotal += expense.price;
+                }
+
+                if expense.shared > 1 {
+                    let owed = 
+                        expense.price * 
+                        (expense.shared as f64 - 1.0) / 
+                        expense.shared as f64;
+
+                    if let Some(total_owed_by) = 
+                    calculated.total_owed.get_mut(&expense.shared) {
+                        *total_owed_by += owed;
+                    } else {
+                        calculated.total_owed.insert(
+                            expense.shared,
+                            owed,
+                        );
+                    }
                 }
             }
         }

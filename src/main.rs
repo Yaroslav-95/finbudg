@@ -181,6 +181,20 @@ fn output(account: Account, maybe_calculated: Option<Calculated>) {
 
     println!();
 
+    for (n, owed) in calculated.total_owed.iter() {
+        println!(
+            "{} person(s) owe you in shared expenses: {:.2}",
+            n - 1,
+            owed,
+        );
+
+        if *n > 2 {
+            println!("Each owes you: {}", *owed / (*n as f64 - 1.0));
+        }
+
+        println!();
+    }
+
     println!("Days until balance runs out:");
 
     let days_left_output = format!(
@@ -191,6 +205,8 @@ fn output(account: Account, maybe_calculated: Option<Calculated>) {
         "{:.2}",
         calculated.days_left_essential,
     );
+
+    // TODO: also show much money would be left by the end of the period
 
     let mut all_are_healthy = true;
     let mut essential_are_healthy = true;

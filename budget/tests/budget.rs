@@ -31,7 +31,7 @@ fn can_parse_account() -> Result<(), ParseError>{
                         name: String::from("Bacon"),
                         price: 3.33,
                         qty: 1,
-                        shared: 2,
+                        shared: 3,
                         recurring: false,
                         category: Some(String::from("products")),
                     },
@@ -39,7 +39,7 @@ fn can_parse_account() -> Result<(), ParseError>{
                         name: String::from("Yoghurt"),
                         price: 1.24,
                         qty: 2,
-                        shared: 1,
+                        shared: 2,
                         recurring: false,
                         category: Some(String::from("products")),
                     },
@@ -106,6 +106,7 @@ fn can_calculate() -> Result<(), ParseError> {
         categories_subtotal: HashMap::<String, f64>::new(),
         total: 22.71,
         balance: 397.29,
+        total_owed: HashMap::<u32, f64>::new(),
         days_left: 69.9762219286658,
         days_left_essential: 84.08253968253969,
         last_day: NaiveDate::from_ymd(2020, 10, 04),
@@ -143,6 +144,15 @@ fn can_calculate() -> Result<(), ParseError> {
     should_be.categories_subtotal.insert(
         "utilities".to_string(),
         5.0,
+    );
+
+    should_be.total_owed.insert(
+        2,
+        1.7599999999999998,
+    );
+    should_be.total_owed.insert(
+        3,
+        2.22,
     );
 
     let account = budget::parse_account("tests/test.toml")?;
