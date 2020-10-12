@@ -4,23 +4,37 @@ Quick cli tool to calculate your expenses and balance for a set period of time.
 
 ## TO-DO
 
-* Take into account shared expenses
-* Make AUR package
 * Make error messages more useful
 * Show what is being spent most money on
 * (Maybe) a way to interactively edit an input file
 
 ## How to install
 
-For now the only way to install this, is by cloning or downloading the repo, and
-building it from source with cargo:
+You need to install the Rust toolchain (rustup, cargo, etc) to build this
+program. You will also need scdoc to generate the manual pages, and make if you
+want to automatically build and install the program.
+
+You can build it yourself using cargo:
 
 ```
 cargo build --release
 ```
 
-From there, if you would like to have this program on your path, you can copy
-it -- for example on Arch Linux -- to `/usr/bin/`.
+Or build it and install it using make:
+
+```
+make
+sudo make install
+```
+
+You can remove it by executing:
+
+```
+sudo make uninstall
+```
+
+For more information about the usage of this program, see `man 1 finbudg` and
+`man 5 finbudg` after building and installing with make.
 
 ## Example
 
