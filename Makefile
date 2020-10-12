@@ -6,7 +6,7 @@ DOCSOUTPUTDIR=$(BUILDDIR)/man
 PREFIX?=/usr
 _INSTDIR=$(DESTDIR)$(PREFIX)
 BINDIR?=$(_INSTDIR)/bin
-MANDIR?=$(PREFIX)/share/man
+MANDIR?=$(_INSTDIR)/share/man
 CARGO?=cargo
 CARGOFLAGS?=--release
 
