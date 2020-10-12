@@ -66,7 +66,8 @@ fn get_cli_matches() -> ArgMatches<'static> {
 		)
 		.arg(
 			Arg::with_name("INPUT")
-				.help("Expenses file in toml format to calculate from.")
+				.help("Expenses file to calculate from. For more information \
+				on the format of this file see 'man 5 finbudg'")
 				.required(true)
 				.index(1),
 		)
