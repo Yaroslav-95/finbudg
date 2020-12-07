@@ -11,6 +11,7 @@ fn main() {
 
 	let no_color = matches.occurrences_of("plain") > 0;
 	let force_color = matches.occurrences_of("force-color") > 0;
+	let consider_owed = matches.occurrences_of("consider-owed") > 0;
 	let input = matches.value_of("INPUT").unwrap();
 
 	let account = match budget::parse_account(input) {
@@ -28,7 +29,7 @@ fn main() {
 			::std::process::exit(1);
 		}
 	};
-	let maybe_calculated = budget::calculate(&account);
+	let maybe_calculated = budget::calculate(&account, consider_owed);
 
 	if no_color && !force_color {
 		colored::control::set_override(false);
@@ -36,7 +37,7 @@ fn main() {
 		colored::control::set_override(true);
 	}
 
-	output(account, maybe_calculated);
+	output(account, maybe_calculated, consider_owed);
 }
 
 fn get_cli_matches() -> ArgMatches<'static> {
@@ -44,6 +45,16 @@ fn get_cli_matches() -> ArgMatches<'static> {
 		.version(crate_version!())
 		.author(crate_authors!())
 		.about(crate_description!())
+		.arg(
+			Arg::with_name("consider-owed")
+				.short("w")
+				.long("consider-owed")
+				.help(
+					"Take into account what's owed when calculating the total \
+					and subtotals."
+					)
+				.takes_value(false)
+		)
 		.arg(
 			Arg::with_name("plain")
 				.short("p")
@@ -60,21 +71,25 @@ fn get_cli_matches() -> ArgMatches<'static> {
 				.help(
 					"Forces colorized output even when piping. Takes \
             precedence over --plain flag and NO_COLOR environment \
-            variable",
+            variable.",
 				)
 				.takes_value(false),
 		)
 		.arg(
 			Arg::with_name("INPUT")
 				.help("Expenses file to calculate from. For more information \
-				on the format of this file see 'man 5 finbudg'")
+				on the format of this file see 'man 5 finbudg'.")
 				.required(true)
 				.index(1),
 		)
 		.get_matches()
 }
 
-fn output(account: Account, maybe_calculated: Option<Calculated>) {
+fn output(
+	account: Account, 
+	maybe_calculated: Option<Calculated>, 
+	consider_owed: bool,
+) {
 	println!(
 		"{}",
 		format!(
@@ -166,19 +181,30 @@ fn output(account: Account, maybe_calculated: Option<Calculated>) {
 
 	println!();
 
-	for (n, owed) in calculated.total_owed.iter() {
+	for (person, owed) in calculated.owed.iter() {
 		println!(
-			"{} person(s) owe you in shared expenses: {:.2}",
-			n - 1,
+			"{} owes you in shared expenses: {:.2}",
+			person,
 			owed,
 		);
-
-		if *n > 2 {
-			println!("Each owes you: {}", *owed / (*n as f64 - 1.0));
-		}
-
-		println!();
 	}
+
+	if calculated.owed.len() > 0 {
+		println!("In total you're owed: {:.2}", calculated.total_owed);
+		if consider_owed {
+			println!(
+				"Supposing you've been repaid, you should be left with: {:.2}", 
+				calculated.balance + calculated.total_owed,
+			);
+		} else {
+			println!(
+				"Assuming you haven't been repaid, you're left with: {:.2}", 
+				calculated.balance - calculated.total_owed,
+			);
+		}
+	}
+
+	println!();
 
 	println!("Days until balance runs out:");
 

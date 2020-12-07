@@ -2,7 +2,7 @@ start_date = 2020-10-01
 end_date = 2020-10-31
 budget = 420.0
 essential_categories = [
-  "products",
+  "produce",
   "transport",
   "utilities",
 ]
@@ -18,26 +18,26 @@ date = 2020-10-01
   [[days.expenses]]
   name = "Bacon"
   price = 3.33
-  category = "products"
-  shared = 3
+  category = "produce"
+  shared = ["Fox", "Falco"]
 
   [[days.expenses]]
   name = "Yoghurt"
   price = 1.24
-  category = "products"
-  qty = 2
-  shared = 2
+  category = "produce"
+  owed = true
+  shared = ["Falco"]
 
   [[days.expenses]]
   name = "Onion"
   price = 0.15
-  category = "products"
+  category = "produce"
 
   [[days.expenses]]
   name = "Chicken"
   price = 2.28
-  category = "products"
-  shared = 2
+  category = "produce"
+  shared = ["Fox"]
 
 [[days]]
 date = 2020-10-04
@@ -49,7 +49,6 @@ date = 2020-10-02
   name = "VPS"
   price = 5.0
   category = "utilities"
-  recurring = true
 
   [[days.expenses]]
   name = "Transport card"

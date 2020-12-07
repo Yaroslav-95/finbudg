@@ -30,12 +30,14 @@ pub struct Day {
 pub struct Expense {
 	pub name: String,
 	pub price: f64,
-	#[serde(default = "shared_qty_default")]
-	pub qty: u32, // unused for now, might use it the future or remove it
-	#[serde(default = "shared_qty_default")]
-	pub shared: u32,
-	#[serde(default = "recurring_default")]
-	pub recurring: bool,
+	#[serde(default)]
+	/// Whom this expense is shared with (if anybody).
+	pub shared: Vec<String>,
+	#[serde(default)]
+	/// Whether this was something we paid for somebody else, and thus is owed
+	/// to us. If true, then shared is the list of person(s) that owe us this
+	/// expense, and should therefore contain at least one name.
+	pub owed: bool,
 	#[serde(default)]
 	pub category: Option<String>,
 }
@@ -49,7 +51,8 @@ pub struct Calculated {
 	pub categories_subtotal: HashMap<String, f64>,
 	pub total: f64,
 	pub balance: f64,
-	pub total_owed: HashMap<u32, f64>,
+	pub owed: HashMap<String, f64>,
+	pub total_owed: f64,
 	pub days_left: f64,
 	pub days_left_essential: f64,
 	pub last_day: NaiveDate,
@@ -59,14 +62,6 @@ pub struct Calculated {
 pub enum ParseError {
 	IOError(ErrorKind),
 	DeserializerError(DeserializerError),
-}
-
-fn shared_qty_default() -> u32 {
-	1
-}
-
-fn recurring_default() -> bool {
-	false
 }
 
 // Parse the dates from toml's Datetime to Chrono's NaiveDate
@@ -97,7 +92,7 @@ pub fn parse_account(path: &str) -> Result<Account, ParseError> {
 	}
 }
 
-pub fn calculate(account: &Account) -> Option<Calculated> {
+pub fn calculate(account: &Account, consider_owed: bool) -> Option<Calculated> {
 	if account.days.is_empty() {
 		return None;
 	}
@@ -110,7 +105,8 @@ pub fn calculate(account: &Account) -> Option<Calculated> {
 		categories_subtotal: HashMap::<String, f64>::new(),
 		total: 0.0,
 		balance: 0.0,
-		total_owed: HashMap::<u32, f64>::new(),
+		owed: HashMap::<String, f64>::new(),
+		total_owed: 0.0,
 		days_left: 0.0,
 		days_left_essential: 0.0,
 		last_day: account.days.last().unwrap().date,
@@ -122,34 +118,51 @@ pub fn calculate(account: &Account) -> Option<Calculated> {
 		}
 
 		for expense in day.expenses.iter() {
-			calculated.total += expense.price;
+			let mut actual_expense: f64 = 0.0;
+
+			if expense.shared.len() > 0 {
+				let owed_share = if expense.owed {
+					expense.price / expense.shared.len() as f64
+				} else {
+					actual_expense =
+						expense.price / (expense.shared.len() as f64 + 1.0);
+					actual_expense
+				};
+
+				for person in expense.shared.iter() {
+					calculated.total_owed += owed_share;
+
+					if let Some(owed_by_person) =
+						calculated.owed.get_mut(person)
+					{
+						*owed_by_person += owed_share;
+					} else {
+						calculated.owed.insert(person.clone(), owed_share);
+					}
+				}
+			} 
+
+			if expense.shared.len() == 0 || consider_owed {
+				actual_expense = expense.price;
+			} else if expense.owed {
+				continue;
+			}
+
+			calculated.total += actual_expense;
 
 			if let Some(category) = &expense.category {
 				if let Some(category_subtotal) =
 					calculated.categories_subtotal.get_mut(category)
 				{
-					*category_subtotal += expense.price;
+					*category_subtotal += actual_expense;
 				} else {
 					calculated
 						.categories_subtotal
-						.insert(category.to_string(), expense.price);
+						.insert(category.to_string(), actual_expense);
 				}
 
 				if account.essential_categories.contains(category) {
-					calculated.essential_subtotal += expense.price;
-				}
-
-				if expense.shared > 1 {
-					let owed = expense.price * (expense.shared as f64 - 1.0)
-						/ expense.shared as f64;
-
-					if let Some(total_owed_by) =
-						calculated.total_owed.get_mut(&expense.shared)
-					{
-						*total_owed_by += owed;
-					} else {
-						calculated.total_owed.insert(expense.shared, owed);
-					}
+					calculated.essential_subtotal += actual_expense;
 				}
 			}
 		}
