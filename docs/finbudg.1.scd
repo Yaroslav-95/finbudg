@@ -17,8 +17,12 @@ a file containing a list of expenses made for a specified period of time. See
 
 # FLAGS
 
-*-h, --help *
+*-h, --help*
 	Prints the list of flags available.
+
+*-w, --consider-owed*
+	Take into account what's owed when calculating the total
+	and subtotals.
 
 *-p, --plain*
 	Don't colorize the output. Can also be set with the *NO_COLOR* environment

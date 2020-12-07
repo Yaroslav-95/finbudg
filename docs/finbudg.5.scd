@@ -56,14 +56,17 @@ The expenses file should contain at the start the following keys:
 				*category*=String
 					The category to which this expense belongs. _Optional_.
 
-				*shared*=uint32
-					If more than one, then the amount of people this expense was
-					shared with. _Optional_.
+				*shared*=array<String>
+					An list of names of the people that this expense is shared
+					with proportionally. If owed equals true, then you are not
+					part of this expense, and the people listed here owe you all
+					of this expense. _Optional_.
 
-				*recurring*=bool
-					Indicates if this is a recurring expense, i.e. one that
-					repeats for each period of time. For example, electricity
-					bills. _Optional_.
+				*owed*=boolean
+					A boolean value that indicates whether you paid for this for
+					another person or persons. If set to true, then shared
+					should contain at least one name. _Optional_.
+
 
 # NOTES
 
